@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noxy AI - A sua Inteligência Artificial</title>
+    <style>
+        /* --- ESTILOS CSS --- */
+        
+        :root {
+            --cor-fundo: #000000;      
+            --cor-caixa-fundo: #181818;
+            --cor-primaria: #8B5CF6;   
+            --cor-texto: #E5E7EB;      
+            --cor-borda: #444444;
+            --cor-sugestao: #282828;
+            --cor-codigo: #FFEB3B;
+        }
+
+        /* 1. Reset e Layout Geral */
+        body {
+            font-family: sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            display: flex; 
+            height: 100vh;
+            overflow: hidden; 
+        }
+
+        .main-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 2. Barra Lateral */
+        .sidebar {
+            width: 70px;
+            background-color: var(--cor-caixa-fundo);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            border-right: 1px solid var(--cor-borda);
+            flex-shrink: 0;
+        }
+        .sidebar-icon {
+            color: var(--cor-texto);
+            font-size: 24px;
+            margin-top: 30px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .sidebar-icon:hover {
+            color: var(--cor-primaria);
+        }
+
+        /* 3. Área de Conteúdo */
+        .content-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: var(--cor-fundo);
+            border-bottom: 1px solid var(--cor-borda);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--cor-primaria);
+        }
+        .logo span { color: var(--cor-texto); font-weight: 300; }
+        .user-avatar { width: 35px; height: 35px; border-radius: 50%; background-color: #5B5B5B; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
+
+        /* 4. Chat e Rolagem */
+        .chat-container {
+            flex-grow: 1;
+            overflow-y: auto; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0 120px 0; 
+        }
+        
+        /* 5. Estilos de Mensagem */
+        .message-container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            margin-bottom: 25px;
+            align-items: flex-start;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        
+        .ai-message-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #8B5CF6, #EC4899); 
+            color: white;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .user-message-icon {
+             width: 30px; height: 30px; border-radius: 50%; background-color: #5B5B5B; color: var(--cor-texto); font-size: 14px; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0; opacity: 0.8;
+        }
+
+        .message-content {
+            padding: 10px 0;
+            line-height: 1.6;
+            font-size: 16px;
+            white-space: pre-wrap;
+        }
+
+        /* Estilos para blocos de código */
+        .message-content pre {
+            background-color: #333333;
+            padding: 10px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        .message-content pre code {
+            font-family: monospace;
+            color: #FFFFFF;
+            background: none;
+            padding: 0;
+        }
+        .message-content code {
+            background-color: #333333;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 15px;
+            color: var(--cor-codigo);
+        }
+
+        /* 6. Sugestões (Cards) */
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            max-width: 900px;
+            margin-bottom: 50px;
+        }
+        .suggestion-card {
+            background-color: var(--cor-sugestao);
+            border-radius: 12px;
+            padding: 15px;
+            width: 200px;
+            min-height: 100px;
+            cursor: pointer;
+            border: 1px solid var(--cor-borda);
+            transition: background-color 0.2s;
+        }
+        .suggestion-card:hover {
+             background-color: #383838;
+        }
+
+        /* 7. Área de Input Fixa */
+        .input-area {
+            position: fixed;
+            bottom: 0;
+            left: 70px; 
+            right: 0;
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            background-color: var(--cor-fundo);
+            z-index: 20;
+            border-top: 1px solid var(--cor-fundo); 
+        }
+
+        .input-wrapper {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--cor-caixa-fundo);
+            border-radius: 25px;
+            display: flex;
+            align-items: flex-end;
+            padding: 10px 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--cor-borda);
+        }
+
+        #user-input {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            color: var(--cor-texto);
+            font-size: 16px;
+            padding: 8px 10px;
+            resize: none;
+            outline: none;
+            height: 20px;
+            max-height: 150px;
+            overflow-y: hidden;
+            line-height: 1.5;
+        }
+        
+        #send-button {
+            background-color: var(--cor-primaria);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 0; 
+            line-height: 1;
+        }
+
+        #send-button span {
+            font-size: 20px;
+        }
+
+        #send-button:disabled {
+            background-color: #555555;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        /* Novo estilo para a animação dos três pontos */
+        .loading-dots {
+            display: inline-block;
+            overflow: hidden;
+            vertical-align: bottom;
+            width: 1.5em; /* Garante que o espaço seja reservado */
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        /* Animação simplificada para os pontos */
+        .loading-dots:after {
+            content: '...';
+            animation: dots 1s steps(3, end) infinite;
+        }
+        
+        @keyframes dots {
+            0% { content: ''; }
+            33% { content: '.'; }
+            66% { content: '..'; }
+            100% { content: '...'; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <div class="logo" style="margin-bottom: 50px;">N</div>
+            <div class="sidebar-icon" title="Novo Chat" style="color: var(--cor-primaria); font-size: 30px;" onclick="resetChat()">✚</div>
+            <div class="sidebar-icon" title="Atividades">&#9203;</div>
+            <div class="sidebar-icon" title="Configurações">⚙</div>
+        </div>
+
+        <div class="content-wrapper">
+            
+            <div class="header">
+                <div class="logo">Noxy<span> AI</span></div>
+                <div class="user-avatar">J</div>
+            </div>
+
+            <div class="chat-container" id="chat-container">
+                
+                <div id="initial-screen">
+                    <div class="welcome-title" style="font-size: 48px; font-weight: 200; margin-top: 50px; margin-bottom: 5px;">Olá, eu sou Noxy AI.</div>
+                    <div class="welcome-subtitle" style="font-size: 20px; color: #AAAAAA; margin-bottom: 40px;">Como posso ajudar você hoje?</div>
+
+                    <div class="suggestions">
+                        <div class="suggestion-card" onclick="simulateUserMessage('O que é Blockchain de forma simples?')">
+                            <div class="card-text" style="font-size: 14px;">O que é Blockchain de forma simples?</div>
+                            <div class="card-icon" style="color: var(--cor-primaria); font-size: 20px;">🔗</div>
+                        </div>
+                        <div class="suggestion-card" onclick="simulateUserMessage('Me fale 3 fatos interessantes sobre o universo.')">
+                            <div class="card-text" style="font-size: 14px;">Me fale 3 fatos interessantes sobre o universo.</div>
+                            <div class="card-icon" style="color: var(--cor-primaria); font-size: 20px;">🪐</div>
+                        </div>
+                        <div class="suggestion-card" onclick="simulateUserMessage('Sugira destinos de viagem na Ásia.')">
+                            <div class="card-text" style="font-size: 14px;">Sugira destinos de viagem na Ásia.</div>
+                            <div class="card-icon" style="color: var(--cor-primaria); font-size: 20px;">✈️</div>
+                        </div>
+                        <div class="suggestion-card" onclick="simulateUserMessage('Crie um código Python para calcular fatorial.')">
+                            <div class="card-text" style="font-size: 14px;">Crie um código Python para calcular fatorial.</div>
+                            <div class="card-icon" style="color: var(--cor-primaria); font-size: 20px;">🐍</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <textarea id="user-input" placeholder="Pergunte qualquer coisa..." rows="1" oninput="adjustTextareaHeight()" onkeydown="handleKeydown(event)"></textarea>
+                    
+                    <button title="Upload de Imagem" style="background: none; border: none; color: var(--cor-texto); font-size: 20px; cursor: pointer; margin-left: 10px;">🖼</button>
+
+                    <button id="send-button" onclick="sendMessage()" disabled>
+                        <span>➤</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- LÓGICA JAVASCRIPT: AGORA COM INDICADOR DE PONTOS --- */
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const initialScreen = document.getElementById('initial-screen');
+        const initialContent = initialScreen ? initialScreen.innerHTML : ''; 
+
+        // 1. Habilita/Desabilita o botão de envio
+        userInput.addEventListener('input', () => {
+            sendButton.disabled = userInput.value.trim() === '';
+        });
+
+        // 2. Ajusta a altura da textarea e lida com o Enter para envio
+        function adjustTextareaHeight() {
+            userInput.style.height = 'auto'; 
+            let newHeight = userInput.scrollHeight;
+            userInput.style.height = (newHeight > 150 ? 150 : newHeight) + 'px';
+            userInput.style.overflowY = newHeight > 150 ? 'auto' : 'hidden';
+        }
+
+        function handleKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault(); 
+                if (!sendButton.disabled) {
+                    sendMessage();
+                }
+            }
+        }
+
+        // 3. Função principal de envio
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+
+            const currentInitialScreen = document.getElementById('initial-screen');
+            if (currentInitialScreen) {
+                currentInitialScreen.remove();
+            }
+
+            // Adiciona a mensagem do usuário
+            appendMessage(message, 'user');
+
+            // Limpa e ajusta
+            userInput.value = '';
+            sendButton.disabled = true;
+            adjustTextareaHeight(); 
+            
+            // Exibe os 3 pontos de carregamento
+            const loadingElement = showLoadingIndicator();
+
+            // Simula a resposta da IA após o tempo de carregamento
+            setTimeout(() => {
+                const responseText = simulateAiResponse(message);
+                
+                // Remove o indicador de carregamento
+                loadingElement.remove(); 
+                
+                // Adiciona a resposta final
+                appendMessage(formatTextToHtml(responseText), 'ai');
+            }, 2500); // Tempo de carregamento simulado (2.5 segundos)
+        }
+
+        // 4. Funções auxiliares (Simulação de clique no card e Reset)
+        function simulateUserMessage(text) {
+            userInput.value = text;
+            sendMessage();
+        }
+
+        function resetChat() {
+            if (!document.getElementById('initial-screen') && initialContent) {
+                const newInitialScreen = document.createElement('div');
+                newInitialScreen.id = 'initial-screen';
+                newInitialScreen.innerHTML = initialContent;
+                chatContainer.innerHTML = '';
+                chatContainer.appendChild(newInitialScreen);
+            } else if (document.getElementById('initial-screen')) {
+                chatContainer.innerHTML = initialContent;
+            }
+            chatContainer.scrollTop = 0;
+            userInput.value = '';
+            sendButton.disabled = true;
+            adjustTextareaHeight();
+        }
+
+
+        // 5. Adiciona a mensagem ao container
+        function appendMessage(htmlContent, sender) {
+            const messageContainer = document.createElement('div');
+            messageContainer.className = 'message-container';
+
+            const iconDiv = document.createElement('div');
+            iconDiv.className = sender === 'user' ? 'user-message-icon' : 'ai-message-icon';
+            iconDiv.innerHTML = sender === 'user' ? 'J' : 'N';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = htmlContent;
+            
+            messageContainer.appendChild(iconDiv);
+            messageContainer.appendChild(contentDiv);
+            chatContainer.appendChild(messageContainer);
+
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return messageContainer;
+        }
+        
+        // 6. Formatação de texto para HTML
+        function formatTextToHtml(text) {
+            let formattedText = text.replace(/```(\w+)?\n([\s\S]*?)\n```/g, (match, p1, p2) => {
+                return `<pre><code>${p2.trim()}</code></pre>`;
+            });
+            formattedText = formattedText.replace(/`([^`]+)`/g, (match, p1) => {
+                return `<code style="background-color: #333333; padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 15px; color: var(--cor-codigo);">${p1}</code>`;
+            });
+            formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formattedText = formattedText.replace(/\n\*/g, '<br>*'); 
+            formattedText = formattedText.replace(/\n/g, '<br>'); 
+
+            return formattedText;
+        }
+
+        // 7. NOVO: Mostra o indicador de carregamento de três pontos
+        function showLoadingIndicator() {
+            const loadingContainer = document.createElement('div');
+            loadingContainer.className = 'message-container';
+
+            const iconDiv = document.createElement('div');
+            iconDiv.className = 'ai-message-icon';
+            iconDiv.innerHTML = 'N';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = 'Noxy AI está digitando<span class="loading-dots"></span>'; 
+            
+            loadingContainer.appendChild(iconDiv);
+            loadingContainer.appendChild(contentDiv);
+            chatContainer.appendChild(loadingContainer);
+
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return loadingContainer; // Retorna o elemento para que possa ser removido depois
+        }
+
+
+        // 8. Base de dados simulada (Função de Resposta)
+        function simulateAiResponse(userMessage) {
+            let responseText = '';
+            const lowerCaseMsg = userMessage.toLowerCase();
+
+            // RESPOSTAS COM CONHECIMENTO EXPANDIDO
+            if (lowerCaseMsg.includes('blockchain') || lowerCaseMsg.includes('cripto')) {
+                responseText = `Como Noxy AI, acessei os registros sobre Blockchain. 
+                \n\nBlockchain (cadeia de blocos) é, em termos simples, um **registro digital descentralizado e distribuído**.
+                \n* **Imutável:** Uma vez que um bloco de dados (transação) é adicionado à cadeia, ele não pode ser alterado, garantindo a segurança.
+                \n* **Descentralizado:** Não é controlado por uma única entidade (como um banco), mas sim distribuído em milhares de computadores (nós) ao redor do mundo.
+                \n\nÉ a tecnologia por trás de criptomoedas como o Bitcoin!`;
+            } else if (lowerCaseMsg.includes('universo') || lowerCaseMsg.includes('espaço') || lowerCaseMsg.includes('cosmos')) {
+                responseText = `Noxy AI encontrou nos dados mais recentes os seguintes fatos interessantes sobre o cosmos:
+                \n\n1. **O Espaço é Silencioso:** O som não se propaga no vácuo.
+                \n2. **Matéria Escura Domina:** Cerca de **96% do universo** é composto por Matéria Escura e Energia Escura.
+                \n3. **Mais Estrelas que Areia:** Existem mais estrelas no universo observável do que grãos de areia em todas as praias da Terra.`;
+            } else if (lowerCaseMsg.includes('viagem') && lowerCaseMsg.includes('ásia')) {
+                responseText = `Com acesso em tempo real a guias de viagem, Noxy AI sugere alguns dos melhores destinos na Ásia:
+                \n\n* **Tóquio, Japão:** Onde a ultramodernidade (Shibuya) encontra a tradição.
+                \n* **Bali, Indonésia:** Conhecida como a "Ilha dos Deuses", perfeita para cultura e praias.
+                \n* **Bangkok, Tailândia:** Vibrante, famosa por seus mercados flutuantes e comida de rua.`;
+            } else if (lowerCaseMsg.includes('código') && lowerCaseMsg.includes('python') && lowerCaseMsg.includes('fatorial')) {
+                responseText = `Gerando código Python para calcular o fatorial:
+                \n\`\`\`python
+                def calcular_fatorial(n):
+                    if n == 0:
+                        return 1
+                    resultado = 1
+                    for i in range(1, n + 1):
+                        resultado *= i
+                    return resultado
+                \`\`\``;
+            } else if (lowerCaseMsg.includes('olá') || lowerCaseMsg.includes('oi')) {
+                responseText = 'Olá! Eu sou Noxy AI. Pode perguntar!';
+            } else {
+                responseText = `Noxy AI: Simulação de busca... Sua pergunta sobre **"${userMessage}"** é complexa. 
+                \nNo momento, só posso fornecer respostas para tópicos pré-determinados (como **Blockchain**, **Universo** ou **Viagens na Ásia**).`;
+            }
+
+            return responseText;
+        }
+
+        // Inicializa o ajuste de altura da textarea ao carregar (se houver texto prévio)
+        window.onload = adjustTextareaHeight;
+
+    </script>
+
+</body>
+</html>
